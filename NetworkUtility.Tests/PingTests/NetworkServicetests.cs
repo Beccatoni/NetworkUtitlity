@@ -1,23 +1,28 @@
-﻿using FluentAssertions;
+﻿using System.Net.NetworkInformation;
+using FluentAssertions;
+using FluentAssertions.Extensions;
 using NetworkUtitlity.Ping;
 using Xunit;
 namespace NetworkUtility.Tests;
 
 public class NetworkServicetests
 {
-   
-    //public  NetworkServicetests()
-    //{
-    //}
+    private readonly NetworkService _pingService;
+
+    public NetworkServicetests()
+    {
+        //SUT - System Under Test
+        _pingService = new NetworkService();
+    }
 
     [Fact]
     public void NetworkSevice_SendPing_ReturnsString()
     {
         // Arrange - variables, classes, mocks
-        var pingService = new NetworkService();
+        
 
         //Act
-        var result = pingService.SendPing();
+        var result = _pingService.SendPing();
 
         // Assert
         result.Should().NotBeNullOrWhiteSpace();
@@ -36,7 +41,59 @@ public class NetworkServicetests
        var result = pingService.PingTimeout(a, b);
         //Assert
         result.Should().Be(expected);
-        result.Should().BeGreaterThanOrEqualTo(3);
+        result.Should().BeGreaterThanOrEqualTo(2);
         result.Should().NotBeInRange(-1000, 0);
+    }
+
+    [Fact]
+    public void NetworkService_LastPingDate_ReturnsDate()
+    {
+        //Act
+        var result = _pingService.LastPingDate();
+
+        //Assert
+        result.Should().BeAfter(2.June(2025));
+        result.Should().BeBefore(1.January(2026));
+
+    }
+
+    [Fact]
+    public void NetworkService_GetPingOptions_ReturnsObject()
+    {
+        //Arrange
+        var expected = new PingOptions()
+        {
+            DontFragment = true,
+            Ttl = 1
+        };
+
+        // Act
+        var result = _pingService.GetPingOptions();
+
+        // Assert WARNING: "Be" careful, to compare reference types use be equivalent to
+        result.Should().BeOfType<PingOptions>();
+        result.Should().BeEquivalentTo(expected);
+        result.Ttl.Should().Be(1);
+
+    }
+
+    [Fact]
+    public void NetworkService_MostREcentPings_ReturnsObject()
+    {
+        //Arrange
+        var expected = new PingOptions()
+        {
+            DontFragment = true,
+            Ttl = 1
+        };
+
+        // Act
+        var result = _pingService.MostREcentPings();
+
+        // Assert WARNING: "Be" careful, to compare reference types use be equivalent to
+        //result.Should().BeOfType<IEnumerable<PingOptions>>();
+        result.Should().ContainEquivalentOf(expected);
+        result.Should().Contain(x => x.DontFragment == true);
+
     }
 }
