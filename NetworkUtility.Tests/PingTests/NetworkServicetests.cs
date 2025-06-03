@@ -91,7 +91,8 @@ public class NetworkServicetests
         var result = _pingService.MostREcentPings();
 
         // Assert WARNING: "Be" careful, to compare reference types use be equivalent to
-        //result.Should().BeOfType<IEnumerable<PingOptions>>();
+        //result.Should().BeOfType<IEnumerable<PingOptions>>(); use this instead: result.Should().BeAssignableTo<IEnumerable<PingOptions>>();
+        result.Should().BeOfType<PingOptions[]>();
         result.Should().ContainEquivalentOf(expected);
         result.Should().Contain(x => x.DontFragment == true);
 
